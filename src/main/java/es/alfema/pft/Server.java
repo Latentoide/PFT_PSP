@@ -23,9 +23,7 @@ public class Server {
     double layX;
     double layY;
 
-    long waiting = 100;
-    int displacement = 10;
-
+    long waiting = 10;
     private Thread t;
 
     BallTask bT;
@@ -69,6 +67,7 @@ public class Server {
                                     }
                                 }
                             });
+                            System.out.println("hola");
                             t.start();
                             threadList.add(t);
                         }
@@ -93,7 +92,6 @@ public class Server {
             t = new Thread(bT);
             t.start();
         }else{
-            System.out.println("Buenas");
             bT.changeStartStop();
         }
 

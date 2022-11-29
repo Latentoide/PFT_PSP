@@ -39,6 +39,7 @@ public class Cliente {
         Thread action = new Thread(new Runnable() {
             @Override
             public void run() {
+                //si no pone el usuario ninguna ip y host se pone automáticamente
                 if(!ip.getText().equals("")){
                     ipString = ip.getText();
                 }
@@ -47,22 +48,23 @@ public class Cliente {
                 }
 
                 System.out.println(ipString + " " + portString);
+
+                //Comienza el intento de conexión
                 try (Socket echoSocket = new Socket(ipString, Integer.parseInt(portString));
                      ObjectInputStream ois = new ObjectInputStream(echoSocket.getInputStream())) {
 
+                    //Crea un hilo que moverá la pelota
                     t1 = new Thread(bT);
-
                     System.out.println("Conexión hecha");
                     Posicion pos = null;
+                    bT = new BallTask(imagen, 10, pos, true);
+                    t1.start();
+
+                    //si el servidor a escrito algo lo recogeremos y moverá la pelota
                     while ((pos = (Posicion) ois.readObject()) != null){
-                        if(bT == null){
-                            bT = new BallTask(imagen, 100, pos, true);
-                            t1.start();
-                        }else{
-                            System.out.println(pos);
-                            bT.setPosition(pos);
-                        }
+                        bT.setPosition(pos);
                     }
+
                 }
                 catch (Exception e)
                 {
