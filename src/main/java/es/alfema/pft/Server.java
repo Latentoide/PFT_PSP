@@ -30,6 +30,9 @@ public class Server {
     List<Thread> threadList = new LinkedList<>();
     Thread serverThread;
 
+    int clienteCont = 0;
+    int currentClient = 0;
+
     @FXML
     protected void moveBall() throws InterruptedException {
         if(serverThread == null){
@@ -42,34 +45,15 @@ public class Server {
 
                         System.out.printf("Creado socket de servidor en puerto %d. Esperando conexiones de clientes.\n", numPuerto);
 
+                        ConexionCliente cc = new ConexionCliente(socketServidor, bT);
                         while (true) { // Acepta una conexión de cliente tras otra
-                            Thread t = new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try (Socket socketComunicacion = socketServidor.accept()) {
+                            if(!cc.getCon() && !cc.getRep()){
+                                Thread t = new Thread(cc);
+                                t.start();
+                            }else if(cc.getCon()){
+                                cc = new ConexionCliente(socketServidor, bT);
+                            }
 
-                                        System.out.printf("Cliente conectado desde %s:%d.\n", socketComunicacion.getInetAddress().getHostAddress(), socketComunicacion.getPort());
-
-                                        try (OutputStream os = socketComunicacion.getOutputStream();
-                                             ObjectOutputStream oosCliente = new ObjectOutputStream(os);) {
-                                            System.out.println("he llegado");
-
-                                            while (true) {
-                                                Posicion pos = new Posicion(bT.getPosition().myX, bT.getPosition().myY);
-                                                System.out.println(pos);
-                                                oosCliente.writeObject(pos);
-                                            }
-                                        } catch (Exception e) {
-                                            System.out.println(e.getMessage());;
-                                        }
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                            });
-                            System.out.println("hola");
-                            t.start();
-                            threadList.add(t);
                         }
 
                     } catch (IOException ex) {
